@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Issue certificate</title>
+<link rel="stylesheet" type="text/css" href="styles.css">
+<link rel="stylesheet" href="bootstrap.min.css" type="text/css">
+<link rel="stylesheet" href="bootstrap-theme.min.css" type="text/css">
+<script src="../js/certificate.js" type="module"></script> 
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script> 
+</head>
+<body> 
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" id="navbarNav">
+  <a class="navbar-brand" href="#">Welcome, Admin! </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarColor01" hidden = "true">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+      <div class="form-group">
+  	</div>
+    <li class="nav-item">
+       <a class="nav-link" href="index.html">Home</a>
+     </li> 
+      <li class="nav-item">
+                    <a class="nav-link" href="index.html">Certificates</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ss.html">Self signed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ca.html">Issue CA</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="certificate.html">Issue Certificate</a>
+                </li>
+    </ul>
+  </div> 
+</nav>  
+        
+        <div class="container">
+        <h1 style="margin: 1em 0em">Issue Certificate</h1>
+        <form id="certForm">
+            <div class="form-group">
+                <label for="cn">Common name</label>
+                <input id="cn" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="surname">Surname</label>
+                <input id="surname" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="givenName">Givenname</label>
+                <input id="givenName" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="o">Organization</label>
+                <input id="o" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="ou">OrganizatioUnit name</label>
+                <input id="ou" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="c">Country</label>
+                <input id="c" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="e">Email</label>
+                <input id="e" type="email" class="form-control">
+            </div>
+            <div class="form-group"> 
+                <label for="date">End date</label>
+                <input id="date" type="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">Certificate signer</label> 
+                <select class="form-control" id="signerSerialNumber">
+                </select> 
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+        
+</body>
+</html>
