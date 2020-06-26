@@ -61,8 +61,6 @@ public class KeysGenerator {
 	
 	
 	
-	
-	
 	public static KeyPair generateKeyPair() {
         try {
         	KeyPairGenerator  keyGen = KeyPairGenerator .getInstance("RSA"); 

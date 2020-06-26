@@ -2,6 +2,19 @@ function json(res) {
     return res.json();
 }
 
+$.get({
+	url: '/api/user/isLoggedAdmin',
+	success: function(result) {
+		
+		if(result == 0 || result == 2){
+			
+			alert("Niste ulogovani kao Admin, nemate pristup ovoj stranici");
+			window.location.replace('index.html');
+			
+		}
+
+	}
+});
 
 document.getElementById('certf').addEventListener('submit', e => {
     e.preventDefault();
@@ -16,6 +29,9 @@ document.getElementById('certf').addEventListener('submit', e => {
         email: document.getElementById('e').value,
         endDate: document.getElementById('date').value
     };
+    
+    
+    
     return fetch('/api/certificate', {
             method: 'post',
             body: JSON.stringify(certData),

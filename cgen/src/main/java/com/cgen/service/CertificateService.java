@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.security.KeyPair;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateExpiredException;
@@ -22,12 +24,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.codec.Base64.InputStream;
+
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.hibernate.engine.jdbc.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
 
 import com.cgen.certificate.Certificate;
 import com.cgen.certificate.CertificateDTO;
@@ -35,6 +46,8 @@ import com.cgen.certificate.CertificateGenerator;
 import com.cgen.certificate.IssuerData;
 import com.cgen.certificate.SubjectData;
 import com.cgen.repository.KSRepository;
+
+
 
 @Service
 public class CertificateService {
@@ -55,7 +68,9 @@ public class CertificateService {
 	} 
 	
 	public List<CertificateDTO> getAll() {
+
 		return repository.getCertificates().stream().map(CertificateDTO::new).collect(Collectors.toList());
+
 	}
 	public List<CertificateDTO> getAllCa() {
 		
@@ -69,7 +84,7 @@ public class CertificateService {
 			if(IsValid(cert.getSerialNumber().toString()) == true) {
 				
 				certsValid.add(cert);
-				System.out.println(cert.getSerialNumber().toString());
+//				System.out.println(cert.getSerialNumber().toString());
 			}
 			
 		}
@@ -88,7 +103,7 @@ public class CertificateService {
 
 			X509Certificate certificate = certificateGenerator.generateCertificate(subjectData, issuerData, true);	
 
-			repository.saveCertificate(certificate.getSerialNumber().toString(), keyPair.getPrivate(), certificate);
+			repository.saveCertificateSS(certificate.getSerialNumber().toString(), keyPair.getPrivate(), certificate);
 		
 			return certificate;
 		} catch(Exception e) {
@@ -109,9 +124,20 @@ public class CertificateService {
 		try {
 			KeyPair keyPair = KeysGenerator.generateKeyPair();
 			X500Name x500name = KeysGenerator.generateX500Name(cert);
-			SubjectData subjectData = new SubjectData(keyPair.getPublic(), x500name, new Date(), cert.getEndDate());			
+			SubjectData subjectData = new SubjectData(keyPair.getPublic(), x500name, new Date(), cert.getEndDate());
 			X509Certificate certificate = certificateGenerator.generateCertificate(subjectData, issuerData, isCa);
-			repository.saveCertificate(certificate.getSerialNumber().toString(), keyPair.getPrivate(), certificate);
+			
+			if(isCa) {
+				
+				repository.saveCertificateCA(certificate.getSerialNumber().toString(), keyPair.getPrivate(), certificate);
+				
+			}
+			else {
+				
+				repository.saveCertificate(certificate.getSerialNumber().toString(), keyPair.getPrivate(), certificate);
+				
+			}
+
 			return certificate;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -253,17 +279,17 @@ public class CertificateService {
 		if (!file2.exists()) {
 			return true;
 		}
-		
+		/*
 		try {
 			cert.checkValidity();
 		} catch (CertificateExpiredException | CertificateNotYetValidException  e) {
 			 
-			return false;
-			
+			return false;		
 		} 
+		*/
 		try {
 
-			@SuppressWarnings("deprecation")
+//			@SuppressWarnings("deprecation")
 			
 			BufferedReader in = null;
 			in = new BufferedReader(new FileReader(file2));
@@ -274,9 +300,7 @@ public class CertificateService {
 			}
 			
 			in.close();
-			
-			
-			
+						
 			for(String revokedSerial : revokedSerials) {
 				
 				if(revokedSerial.equalsIgnoreCase(serial))
@@ -298,6 +322,43 @@ public class CertificateService {
 		return true;
 	}
 	
+	public boolean PDFGenerator(String serial) {
+		
+		X509Certificate certificate = getOne(serial);
+		Document document = new Document();
+		
+		repository.getCertificates().stream().map(CertificateDTO::new).collect(Collectors.toList());
+		
+		new CertificateDTO(certificate);
+		
+	      try
+	      {
+	         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("YourCertificate.pdf"));
+	         document.open();
+	         document.add(new Paragraph("Serial number: " + certificate.getSerialNumber()));
+	         document.add(new Paragraph("Common name: " + new CertificateDTO(certificate).getCommonName()));
+	         document.add(new Paragraph("Given name: " + new CertificateDTO(certificate).getGivenname()));
+	         document.add(new Paragraph("Surname: " + new CertificateDTO(certificate).getSurname()));
+	         document.add(new Paragraph("Organization: " + new CertificateDTO(certificate).getOrganization()));
+	         document.add(new Paragraph("Organization unit: " + new CertificateDTO(certificate).getOrganizationUnit()));
+	         document.add(new Paragraph("Country: " + new CertificateDTO(certificate).getCountry()));
+	         document.add(new Paragraph("E-mail: " + new CertificateDTO(certificate).getEmail()));
+
+	         
+	         document.close();
+	         writer.close();
+	      } catch (DocumentException e)
+	      {
+	         e.printStackTrace();
+	      } catch (FileNotFoundException e)
+	      {
+	         e.printStackTrace();
+	      }
+
+		return true;
+		
+	}
+	
 	
 	public String ispis(String serial) {
 		X509Certificate cert = getOne(serial);
@@ -313,5 +374,33 @@ public class CertificateService {
 	   
 		return streamWritter.toString();
 	}
+	
+	
+	public boolean checkExpiration(String serial) {
+		
+		X509Certificate cert = getOne(serial);
+		
+		try {
+			cert.checkValidity();
+			
+		} catch (CertificateExpiredException | CertificateNotYetValidException  e) {
+			 
+			return false;
+			
+		} 
+		
+		return true;
+		
+	}
+	
+	public static void setFeaturesBySystemProperty(SAXParserFactory factory) 
+	         throws SAXException, ParserConfigurationException { 
+	  
+	     final boolean enableExternalDtdLoad = Boolean.parseBoolean( 
+	         System.getProperty("ENABLE_EXTERNAL_DTD_LOAD", "false")); 
+	  
+	     factory.setFeature("LOAD_EXTERNAL_DTD", enableExternalDtdLoad); 
+	     factory.setFeature("EXTERNAL_GENERAL_ENTITIES", enableExternalDtdLoad); 
+	 } 
 	
 }

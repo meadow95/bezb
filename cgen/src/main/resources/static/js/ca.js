@@ -1,6 +1,21 @@
 function json(res) {
     return res.json();
 }
+
+$.get({
+	url: '/api/user/isLoggedAdmin',
+	success: function(result) {
+		
+		if(result == 0 || result == 2){
+			
+			alert("Niste ulogovani kao Admin, nemate pristup ovoj stranici");
+			window.location.replace('index.html');
+			
+		}
+
+	}
+}); 
+
 fetch('/api/certificate?type=ca', {
     credentials: 'include'
 		}).then(json).then(certificates => {

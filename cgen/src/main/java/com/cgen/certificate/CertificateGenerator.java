@@ -28,7 +28,7 @@ public class CertificateGenerator {
 	
 	
 	public CertificateGenerator() {
-		serial=new KSRepository().getCertificates().size();
+		serial=new KSRepository().getCertificates().size() + 1;
 		 
 	}
 	
